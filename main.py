@@ -1,7 +1,5 @@
 import processer
 import os
-import cv2
-import numpy as np
 import json
 
 pathself = os.path.abspath(__file__)#当前脚本绝对路径

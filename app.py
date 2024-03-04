@@ -1,9 +1,8 @@
 ﻿import subprocess
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, jsonify
 import processer
 import json
-import cv2
-import os, sys
+import os
 import socket
 with open('parameter/parameter.txt', 'r') as file:
     content = file.read()
@@ -127,4 +126,4 @@ def process_image():
 
 
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0', debug=True)
+    app.run(host = '0.0.0.0')

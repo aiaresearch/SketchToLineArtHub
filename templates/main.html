@@ -1,0 +1,246 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>图像处理参数调节面板</title>
+    <style>
+        body {
+            font-size: 18px;
+        }
+        h2 {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        label {
+            font-size: 20px;
+            font-weight: bold;
+            display: block;
+            margin-top: 20px;
+        }
+        input[type="number"], input[type="range"], select, input[type="color"] {
+            font-size: 20px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 200px;
+        }
+        button {
+            font-size: 22px;
+            font-weight: bold;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <label for="method">选择处理方法：</label>
+    <select id="method" onchange="updateMethod(); updateDict()">
+        <option value="laplacian">laplacian</option>
+        <option value="gaussian">高斯自适应阈值二值化</option>
+        <option value="sobel">sobel</option>
+        <option value="canny">canny</option>
+    </select>
+
+    <h2>图像处理参数调节面板</h2>
+
+    <!-- 字典 -->
+    <pre id="parameter-dict"></pre>
+
+    <!-- 均值滤波核边长大小 -->
+    <label for="mean-filter-size">均值滤波核边长大小：</label>
+    <input type="range" id="mean-filter-size" min="1" max="10" step="2" value="5" oninput="updateValue('mean-filter-size-value', this.value); updateDict()">
+    <input type="number" id="mean-filter-size-value" min="1" max="10" step="2" value="5" oninput="updateValue('mean-filter-size', this.value); updateDict()">
+
+    <!-- gaussian二值化参数 -->
+    <label for="gaussian-wide">gaussian二值化参数（wide）：</label>
+    <input type="range" id="gaussian-wide" min="0" max="50" value="25" oninput="updateValue('gaussian-wide-value', this.value); updateDict()">
+    <input type="number" id="gaussian-wide-value" min="0" max="50" value="25" oninput="updateValue('gaussian-wide', this.value); updateDict()">
+
+    <label for="gaussian-decrement">gaussian二值化参数（decrement）：</label>
+    <input type="range" id="gaussian-decrement" min="0" max="50" value="10" oninput="updateValue('gaussian-decrement-value', this.value); updateDict()">
+    <input type="number" id="gaussian-decrement-value" min="0" max="50" value="10" oninput="updateValue('gaussian-decrement', this.value); updateDict()">
+
+    <!-- canny边缘检测参数 -->
+    <label for="canny-threshold1">canny边缘检测参数（threshold1）：</label>
+    <input type="range" id="canny-threshold1" min="20" max="100" value="60" oninput="updateValue('canny-threshold1-value', this.value); updateDict()">
+    <input type="number" id="canny-threshold1-value" min="20" max="100" value="60" oninput="updateValue('canny-threshold1', this.value); updateDict()">
+
+    <label for="canny-threshold2">canny边缘检测参数（threshold2）：</label>
+    <input type="range" id="canny-threshold2" min="120" max="320" value="170" oninput="updateValue('canny-threshold2-value', this.value); updateDict()">
+    <input type="number" id="canny-threshold2-value" min="120" max="320" value="170" oninput="updateValue('canny-threshold2', this.value); updateDict()">
+
+    <label for="canny-wide">canny边缘检测参数（wide）：</label>
+    <select id="canny-wide" onchange="updateValue('canny-wide-value', this.value); updateDict()">
+        <option value="1">1</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="7">7</option>
+
+    </select>
+    <input type="hidden" id="canny-wide-value" value="1">
+    <!-- lable算法值选择 -->
+    <label for="sobel-size">Sobel边缘检测参数（size）：</label>
+    <input type="range" id="sobel-size" min="1" max="10" step="2" value="5" oninput="updateValue('sobel-size-value', this.value); updateDict()" style="display: none;">
+    <input type="number" id="sobel-size-value" min="1" max="10" step="2" value="5" oninput="updateValue('sobel-size', this.value); updateDict()" style="display: none;">
+
+    <!-- 颜色选择 -->
+    <label for="color-picker">颜色选择：</label>
+    <input type="color" id="color-picker" onchange="updateColor(); updateDict()">
+    <input type="hidden" id="color-r" value="0">
+    <input type="hidden" id="color-g" value="0">
+    <input type="hidden" id="color-b" value="0">
+
+    <!-- 保存按钮 -->
+    <button onclick="saveDict()">保存</button>
+
+    <!-- 网页跳转按钮 -->
+    <button id="jumpBtn">返回</button>
+
+
+    ><!-- 提示气泡框 -->
+    <div id="message-bubble"></div>
+
+    <script>
+        const jumpBtn = document.getElementById("jumpBtn");
+        jumpBtn.addEventListener("click", function() {
+        window.location.href = "{{ url }}"; 
+        });
+        let parameterDict = {
+            "blur_num": 5,
+            "gaussian_wide": 25,
+            "gaussian_decrement": 10,
+            "canny_threshold1": 60,
+            "canny_threshold2": 170,
+            "canny_wide": 1,
+            "color": [0, 0, 0]
+        };
+
+        // 页面加载时展示初始字典
+        window.onload = displayDict;
+
+
+
+        //算法选择
+        function updateMethod() {
+            let method = document.getElementById("method").value;
+
+            // 隐藏所有调参选项
+            document.getElementById("canny-threshold1").style.display = "none";
+            document.getElementById("canny-threshold2").style.display = "none";
+            document.getElementById("canny-wide").style.display = "none";
+            document.getElementById("gaussian-wide").style.display = "none";
+            document.getElementById("gaussian-decrement").style.display = "none";
+            document.getElementById("sobel-size").style.display = "none";
+            document.getElementById("sobel-size-value").style.display = "none";
+            // 根据选择的方法显示对应的调参选项
+            if (method === "canny") {
+                document.getElementById("canny-threshold1").style.display = "block";
+                document.getElementById("canny-threshold2").style.display = "block";
+                document.getElementById("canny-wide").style.display = "block";
+            } else if (method === "gaussian") {
+                document.getElementById("gaussian-wide").style.display = "block";
+                document.getElementById("gaussian-decrement").style.display = "block";
+            }else if (method === "sobel" ){
+                document.getElementById("sobel-size").style.display = "block";
+                document.getElementById("sobel-size-value").style.display = "block";
+            }else if (method === "laplacian") {
+                document.getElementById("sobel-size").style.display = "block";
+                document.getElementById("sobel-size-value").style.display = "block";      
+            }}
+
+        function updateValue(id, value) {
+            document.getElementById(id).value = value;
+        }
+
+        function updateColor() {
+            let color = document.getElementById("color-picker").value;
+            let rgb = hexToRgb(color);
+            document.getElementById("color-r").value = rgb.r;
+            document.getElementById("color-g").value = rgb.g;
+            document.getElementById("color-b").value = rgb.b;
+        }
+
+        function hexToRgb(hex) {
+            // 去除 # 号
+            hex = hex.replace("#", "");
+            // 提取颜色通道值
+            let r = parseInt(hex.substring(0, 2), 16);
+            let g = parseInt(hex.substring(2, 4), 16);
+            let b = parseInt(hex.substring(4, 6), 16);
+            return { r, g, b };
+        }
+
+        function updateDict() {
+            let method = document.getElementById("method").value;
+            parameterDict = {
+                "blur_num": parseInt(document.getElementById("mean-filter-size").value),
+                "gaussian_wide": parseInt(document.getElementById("gaussian-wide").value),
+                "gaussian_decrement": parseInt(document.getElementById("gaussian-decrement").value),
+                "canny_threshold1": parseInt(document.getElementById("canny-threshold1").value),
+                "canny_threshold2": parseInt(document.getElementById("canny-threshold2").value),
+                "canny_wide": parseInt(document.getElementById("canny-wide-value").value),
+                "method": document.getElementById("method").value,
+                "color": [
+                    parseInt(document.getElementById("color-r").value),
+                    parseInt(document.getElementById("color-g").value),
+                    parseInt(document.getElementById("color-b").value)
+                ]
+            };
+
+             if (method === "gaussian") {
+                parameterDict["gaussian_wide"] = parseInt(document.getElementById("gaussian-wide").value);
+                parameterDict["gaussian_decrement"] = parseInt(document.getElementById("gaussian-decrement").value);}
+                else if (method === "sobel") {
+                 parameterDict["sobel_size"] = parseInt(document.getElementById("sobel-size").value);}
+                else if (method === "laplacian") {
+                 parameterDict["sobel_size"] = parseInt(document.getElementById("sobel-size").value);} {
+                 parameterDict["sobel_size"] = parseInt(document.getElementById("sobel-size").value);}
+            displayDict();
+        }
+
+        function saveDict() {
+            const data = JSON.stringify(parameterDict, null, 4);
+            const blob = new Blob([data], { type: 'text/plain' });
+            const anchor = document.createElement('a');
+            anchor.href = URL.createObjectURL(blob);
+            anchor.download = 'parameter.txt';
+            anchor.click();
+
+
+        }
+
+        function displayDict() {
+            document.getElementById("parameter-dict").textContent = JSON.stringify(parameterDict, null, 4);
+            let dict_get = JSON.stringify(parameterDict, null, 0);
+            const formData = new FormData();
+            formData.append('para_dict', dict_get);
+            const xhr_dict = new XMLHttpRequest();
+                    xhr_dict.open('POST', '/dict');
+                    xhr_dict.onload = function() {
+                        if (xhr_dict.status === 200) {
+                            console.log('...');
+                        } else {
+                            console.log(',,,');
+                        }
+                    };
+                    xhr_dict.send(formData);
+                    showMessage('修改成功', 1000)
+        }
+
+        function showMessage(text, duration) {  
+            const bubble = document.getElementById('message-bubble');  
+            bubble.innerText = text;  
+            bubble.style.display = 'block';  
+            setTimeout(() => {  
+                bubble.style.display = 'none';  
+            }, duration);  
+            }
+
+
+    </script>
+</body>
+</html>

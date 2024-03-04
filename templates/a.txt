@@ -1,0 +1,12 @@
+import json
+
+
+with open('path/to/text_file.txt', 'r') as file:
+   
+ content = file.read()
+    
+data = json.loads(content)
+
+
+print(data)
+

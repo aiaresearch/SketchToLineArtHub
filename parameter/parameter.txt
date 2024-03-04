@@ -1,0 +1,15 @@
+{
+    "blur_num": 5,
+    "gaussian_wide": 25,
+    "gaussian_decrement": 10,
+    "canny_threshold1": 60,
+    "canny_threshold2": 170,
+    "canny_wide": 1,
+    "method": "laplacian",
+    "color": [
+        0,
+        110,
+        0
+    ],
+    "sobel_size": 5
+}

@@ -1,28 +1,36 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
     <title>图像处理参数调节面板</title>
     <style>
         body {
             font-size: 18px;
         }
+
         h2 {
             font-size: 28px;
             font-weight: bold;
         }
+
         label {
             font-size: 20px;
             font-weight: bold;
             display: block;
             margin-top: 20px;
         }
-        input[type="number"], input[type="range"], select, input[type="color"] {
+
+        input[type="number"],
+        input[type="range"],
+        select,
+        input[type="color"] {
             font-size: 20px;
             padding: 5px;
             border: 1px solid #ccc;
             border-radius: 5px;
             width: 200px;
         }
+
         button {
             font-size: 22px;
             font-weight: bold;
@@ -36,6 +44,7 @@
         }
     </style>
 </head>
+
 <body>
     <label for="method">选择处理方法：</label>
     <select id="method" onchange="updateMethod(); updateDict()">
@@ -52,26 +61,36 @@
 
     <!-- 均值滤波核边长大小 -->
     <label for="mean-filter-size">均值滤波核边长大小：</label>
-    <input type="range" id="mean-filter-size" min="1" max="10" step="2" value="5" oninput="updateValue('mean-filter-size-value', this.value); updateDict()">
-    <input type="number" id="mean-filter-size-value" min="1" max="10" step="2" value="5" oninput="updateValue('mean-filter-size', this.value); updateDict()">
+    <input type="range" id="mean-filter-size" min="1" max="10" step="2" value="5"
+        oninput="updateValue('mean-filter-size-value', this.value); updateDict()">
+    <input type="number" id="mean-filter-size-value" min="1" max="10" step="2" value="5"
+        oninput="updateValue('mean-filter-size', this.value); updateDict()">
 
     <!-- gaussian二值化参数 -->
     <label for="gaussian-wide">gaussian二值化参数（wide）：</label>
-    <input type="range" id="gaussian-wide" min="0" max="50" value="25" oninput="updateValue('gaussian-wide-value', this.value); updateDict()">
-    <input type="number" id="gaussian-wide-value" min="0" max="50" value="25" oninput="updateValue('gaussian-wide', this.value); updateDict()">
+    <input type="range" id="gaussian-wide" min="0" max="50" value="25"
+        oninput="updateValue('gaussian-wide-value', this.value); updateDict()">
+    <input type="number" id="gaussian-wide-value" min="0" max="50" value="25"
+        oninput="updateValue('gaussian-wide', this.value); updateDict()">
 
     <label for="gaussian-decrement">gaussian二值化参数（decrement）：</label>
-    <input type="range" id="gaussian-decrement" min="0" max="50" value="10" oninput="updateValue('gaussian-decrement-value', this.value); updateDict()">
-    <input type="number" id="gaussian-decrement-value" min="0" max="50" value="10" oninput="updateValue('gaussian-decrement', this.value); updateDict()">
+    <input type="range" id="gaussian-decrement" min="0" max="50" value="10"
+        oninput="updateValue('gaussian-decrement-value', this.value); updateDict()">
+    <input type="number" id="gaussian-decrement-value" min="0" max="50" value="10"
+        oninput="updateValue('gaussian-decrement', this.value); updateDict()">
 
     <!-- canny边缘检测参数 -->
     <label for="canny-threshold1">canny边缘检测参数（threshold1）：</label>
-    <input type="range" id="canny-threshold1" min="20" max="100" value="60" oninput="updateValue('canny-threshold1-value', this.value); updateDict()">
-    <input type="number" id="canny-threshold1-value" min="20" max="100" value="60" oninput="updateValue('canny-threshold1', this.value); updateDict()">
+    <input type="range" id="canny-threshold1" min="20" max="100" value="60"
+        oninput="updateValue('canny-threshold1-value', this.value); updateDict()">
+    <input type="number" id="canny-threshold1-value" min="20" max="100" value="60"
+        oninput="updateValue('canny-threshold1', this.value); updateDict()">
 
     <label for="canny-threshold2">canny边缘检测参数（threshold2）：</label>
-    <input type="range" id="canny-threshold2" min="120" max="320" value="170" oninput="updateValue('canny-threshold2-value', this.value); updateDict()">
-    <input type="number" id="canny-threshold2-value" min="120" max="320" value="170" oninput="updateValue('canny-threshold2', this.value); updateDict()">
+    <input type="range" id="canny-threshold2" min="120" max="320" value="170"
+        oninput="updateValue('canny-threshold2-value', this.value); updateDict()">
+    <input type="number" id="canny-threshold2-value" min="120" max="320" value="170"
+        oninput="updateValue('canny-threshold2', this.value); updateDict()">
 
     <label for="canny-wide">canny边缘检测参数（wide）：</label>
     <select id="canny-wide" onchange="updateValue('canny-wide-value', this.value); updateDict()">
@@ -84,8 +103,10 @@
     <input type="hidden" id="canny-wide-value" value="1">
     <!-- lable算法值选择 -->
     <label for="sobel-size">Sobel边缘检测参数（size）：</label>
-    <input type="range" id="sobel-size" min="1" max="10" step="2" value="5" oninput="updateValue('sobel-size-value', this.value); updateDict()" style="display: none;">
-    <input type="number" id="sobel-size-value" min="1" max="10" step="2" value="5" oninput="updateValue('sobel-size', this.value); updateDict()" style="display: none;">
+    <input type="range" id="sobel-size" min="1" max="10" step="2" value="5"
+        oninput="updateValue('sobel-size-value', this.value); updateDict()" style="display: none;">
+    <input type="number" id="sobel-size-value" min="1" max="10" step="2" value="5"
+        oninput="updateValue('sobel-size', this.value); updateDict()" style="display: none;">
 
     <!-- 颜色选择 -->
     <label for="color-picker">颜色选择：</label>
@@ -106,8 +127,8 @@
 
     <script>
         const jumpBtn = document.getElementById("jumpBtn");
-        jumpBtn.addEventListener("click", function() {
-        window.location.href = "{{ url }}"; 
+        jumpBtn.addEventListener("click", function () {
+            window.location.href = "{{ url }}";
         });
         let parameterDict = {
             "blur_num": 5,
@@ -144,13 +165,14 @@
             } else if (method === "gaussian") {
                 document.getElementById("gaussian-wide").style.display = "block";
                 document.getElementById("gaussian-decrement").style.display = "block";
-            }else if (method === "sobel" ){
+            } else if (method === "sobel") {
                 document.getElementById("sobel-size").style.display = "block";
                 document.getElementById("sobel-size-value").style.display = "block";
-            }else if (method === "laplacian") {
+            } else if (method === "laplacian") {
                 document.getElementById("sobel-size").style.display = "block";
-                document.getElementById("sobel-size-value").style.display = "block";      
-            }}
+                document.getElementById("sobel-size-value").style.display = "block";
+            }
+        }
 
         function updateValue(id, value) {
             document.getElementById(id).value = value;
@@ -191,14 +213,18 @@
                 ]
             };
 
-             if (method === "gaussian") {
+            if (method === "gaussian") {
                 parameterDict["gaussian_wide"] = parseInt(document.getElementById("gaussian-wide").value);
-                parameterDict["gaussian_decrement"] = parseInt(document.getElementById("gaussian-decrement").value);}
-                else if (method === "sobel") {
-                 parameterDict["sobel_size"] = parseInt(document.getElementById("sobel-size").value);}
-                else if (method === "laplacian") {
-                 parameterDict["sobel_size"] = parseInt(document.getElementById("sobel-size").value);} {
-                 parameterDict["sobel_size"] = parseInt(document.getElementById("sobel-size").value);}
+                parameterDict["gaussian_decrement"] = parseInt(document.getElementById("gaussian-decrement").value);
+            }
+            else if (method === "sobel") {
+                parameterDict["sobel_size"] = parseInt(document.getElementById("sobel-size").value);
+            }
+            else if (method === "laplacian") {
+                parameterDict["sobel_size"] = parseInt(document.getElementById("sobel-size").value);
+            } {
+                parameterDict["sobel_size"] = parseInt(document.getElementById("sobel-size").value);
+            }
             displayDict();
         }
 
@@ -219,28 +245,29 @@
             const formData = new FormData();
             formData.append('para_dict', dict_get);
             const xhr_dict = new XMLHttpRequest();
-                    xhr_dict.open('POST', '/dict');
-                    xhr_dict.onload = function() {
-                        if (xhr_dict.status === 200) {
-                            console.log('...');
-                        } else {
-                            console.log(',,,');
-                        }
-                    };
-                    xhr_dict.send(formData);
-                    showMessage('修改成功', 1000)
+            xhr_dict.open('POST', '/dict');
+            xhr_dict.onload = function () {
+                if (xhr_dict.status === 200) {
+                    console.log('...');
+                } else {
+                    console.log(',,,');
+                }
+            };
+            xhr_dict.send(formData);
+            showMessage('修改成功', 1000)
         }
 
-        function showMessage(text, duration) {  
-            const bubble = document.getElementById('message-bubble');  
-            bubble.innerText = text;  
-            bubble.style.display = 'block';  
-            setTimeout(() => {  
-                bubble.style.display = 'none';  
-            }, duration);  
-            }
+        function showMessage(text, duration) {
+            const bubble = document.getElementById('message-bubble');
+            bubble.innerText = text;
+            bubble.style.display = 'block';
+            setTimeout(() => {
+                bubble.style.display = 'none';
+            }, duration);
+        }
 
 
     </script>
 </body>
+
 </html>

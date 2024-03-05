@@ -4,14 +4,14 @@ import numpy as np
 import os
 
 
-
-if __name__=="__main__":#not import but strightlt run the script
+if __name__ == "__main__":  # not import but strightlt run the script
 
     a = np.random.randint(0, 225, (25, 25, 3))
     a = a.astype("uint8")
     cv2.imshow("Noise", a)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
 
 class Processer(object):
     def __init__(self, config_dic={}):
@@ -31,23 +31,24 @@ class Processer(object):
 
         self.__dict__.update(config_dic)
 
-    def set_config(self, config_dic = {}):
+    def set_config(self, config_dic={}):
         self.__dict__.update(config_dic)
 
-    def read_in(self, img):#读入灰度图
-        img = cv2.imread(img, \
-                    cv2.IMREAD_GRAYSCALE)
+    def read_in(self, img):  # 读入灰度图
+        img = cv2.imread(img,
+                         cv2.IMREAD_GRAYSCALE)
         return img
-    
+
     def read_in_fold(self, fold_path):
-        img_lib = os.listdir(fold_path)#读取该文件夹中文件名
+        img_lib = os.listdir(fold_path)  # 读取该文件夹中文件名
         pic_lib = []
         for i in img_lib:
             pic_lib.append(self.read_in(fold_path+'/'+i))
         return pic_lib
 
     def read_in_html(self, img):
-        img = cv2.imdecode(np.fromstring(img.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+        img = cv2.imdecode(np.fromstring(
+            img.read(), np.uint8), cv2.IMREAD_UNCHANGED)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         return img
@@ -61,15 +62,15 @@ class Processer(object):
         img = cv2.imdecode(img_array, cv2.COLOR_BGR2RGB)  # 转换Opencv格式
 
         return img
-    
+
     def out_base64(self, cv2_image):
         image = cv2.imencode('.jpg', cv2_image)[1]
         base64_data = str(base64.b64encode(image))[2:-1]
-    
+
         return base64_data
-    
-    def median_blur(self, img):#中值模糊
-        img = cv2.medianBlur(img, self.blur_num)#denoise by medianBlur
+
+    def median_blur(self, img):  # 中值模糊
+        img = cv2.medianBlur(img, self.blur_num)  # denoise by medianBlur
         return img
 
     def method_color(self, img):
@@ -85,34 +86,36 @@ class Processer(object):
 
         return img
 
-    def method_binarization(self, img):#高斯自适应二值化
-        img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, \
+    def method_binarization(self, img):  # 高斯自适应二值化
+        img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                     cv2.THRESH_BINARY, self.gaussian_wide, self.gaussian_decrement)
         return img
 
-    def method_canny(self, img):#canny应用
-        img = 255 - cv2.Canny(img,\
-                        self.canny_threshold1,self.canny_threshold2,self.canny_wide)
+    def method_canny(self, img):  # canny应用
+        img = 255 - cv2.Canny(img,
+                              self.canny_threshold1, self.canny_threshold2, self.canny_wide)
         return img
-    
-    def method_sobel(self, img):#sobel应用
+
+    def method_sobel(self, img):  # sobel应用
         img = self.median_blur(img)
         imgx = cv2.Sobel(img, cv2.CV_8U, 1, 0, self.soble_size)
         imgy = cv2.Sobel(img, cv2.CV_8U, 0, 1, self.soble_size)
         img = 255 - cv2.addWeighted(imgx, 0.5, imgy, 0.5, 0)
         if self.flag_binary == True:
-            img = cv2.threshold(img, self.binary_threshold, 255, cv2.THRESH_BINARY)[1]#此简单二值化函数返回2值元组  
+            img = cv2.threshold(img, self.binary_threshold, 255, cv2.THRESH_BINARY)[
+                1]  # 此简单二值化函数返回2值元组
         return img
-    
+
     def method_laplacian(self, img):
         img = self.median_blur(img)
         img = 255 - cv2.Laplacian(img, cv2.CV_8U)
         if self.flag_binary == True:
-            img = cv2.threshold(img, self.binary_threshold, 255, cv2.THRESH_BINARY)[1]#此简单二值化函数返回2值元组       
+            img = cv2.threshold(img, self.binary_threshold, 255, cv2.THRESH_BINARY)[
+                1]  # 此简单二值化函数返回2值元组
         return img
-    
+
     def img_save(self, img, img_name, dir_path):
-        cv2.imwrite(dir_path + '/default/%s'%img_name, img)
+        cv2.imwrite(dir_path + '/default/%s' % img_name, img)
 
     def img_imshow(self, img, img_name, dir_path):
         cv2.namedWindow("'Esc' to exit,'s' to save", cv2.WINDOW_NORMAL)
@@ -120,8 +123,7 @@ class Processer(object):
         k = cv2.waitKey(0)
         if k == 27:
             cv2.destroyAllWindows()
-        elif k == ord('s'): # wait for 's' key to save and exit
+        elif k == ord('s'):  # wait for 's' key to save and exit
             self.img_save(img, img_name, dir_path)
             cv2.destroyAllWindows()
-        return 
-        
+        return

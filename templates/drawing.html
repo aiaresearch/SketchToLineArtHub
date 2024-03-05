@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>网页修图UI</title>
     <style>
@@ -11,7 +12,7 @@
             font-family: Arial, sans-serif;
         }
 
-         #container {
+        #container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -95,224 +96,227 @@
         }
     </style>
 </head>
+
 <body>
-<div id="container">
-    <h1>修图UI</h1>
-    <div class="tools">
-        <!-- 清除画布按钮 -->
-        <button id="clearBtn">清屏</button>
-        <!-- 切换橡皮擦和画笔按钮 -->
-        <button id="eraserBtn" style="color: white;">橡皮</button>
-         <!-- 撤销操作按钮 -->
-        <button id="undoBtn">撤回</button>
-        <!-- 颜色选择器 -->
-        <label class="color-label" for="colorSelect">画笔颜色:</label>
-        <input type="color" id="colorSelect" value="#000000">
-        <!-- 图像上传输入框 -->
-        <input type="file" id="imageInput">
-        <!-- 保存画布图像按钮 -->
-        <button id="saveBtn">保存</button>
-        <!-- 网页跳转按钮 -->
-        <button id="jumpBtn">跳转至调参网站</button>
+    <div id="container">
+        <h1>修图UI</h1>
+        <div class="tools">
+            <!-- 清除画布按钮 -->
+            <button id="clearBtn">清屏</button>
+            <!-- 切换橡皮擦和画笔按钮 -->
+            <button id="eraserBtn" style="color: white;">橡皮</button>
+            <!-- 撤销操作按钮 -->
+            <button id="undoBtn">撤回</button>
+            <!-- 颜色选择器 -->
+            <label class="color-label" for="colorSelect">画笔颜色:</label>
+            <input type="color" id="colorSelect" value="#000000">
+            <!-- 图像上传输入框 -->
+            <input type="file" id="imageInput">
+            <!-- 保存画布图像按钮 -->
+            <button id="saveBtn">保存</button>
+            <!-- 网页跳转按钮 -->
+            <button id="jumpBtn">跳转至调参网站</button>
 
+        </div>
+        <div class="size-selector">
+            <!-- 笔刷大小调节器 -->
+            <label for="sizeRange">Size:</label>
+            <input type="range" id="sizeRange" min="1" max="20" value="3">
+            <span id="sizeValue">3</span>
+        </div>
+        <!-- 画布 -->
+        <canvas id="canvas" width="800" height="600"></canvas>
     </div>
-    <div class="size-selector">
-        <!-- 笔刷大小调节器 -->
-        <label for="sizeRange">Size:</label>
-        <input type="range" id="sizeRange" min="1" max="20" value="3">
-        <span id="sizeValue">3</span>
-    </div>
-    <!-- 画布 -->
-    <canvas id="canvas" width="800" height="600"></canvas>
-</div>
-<script>
-    //网页跳转
-    const jumpBtn = document.getElementById("jumpBtn");
-    jumpBtn.addEventListener("click", function() {
-    window.location.href = "{{ url }}"; // 替换为你要跳转的网页地址
-    });
+    <script>
+        //网页跳转
+        const jumpBtn = document.getElementById("jumpBtn");
+        jumpBtn.addEventListener("click", function () {
+            window.location.href = "{{ url }}"; // 替换为你要跳转的网页地址
+        });
 
-    const eraserBtn = document.getElementById("eraserBtn"); //橡皮按钮形式切换
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let drawing = false; // 是否在绘画中
-    let lastX = 0; // 上一个坐标点的x坐标
-    let lastY = 0; // 上一个坐标点的y坐标
-    let canvasHistory = []; // 保存历史画布状态的数组
-    let currentIndex = -1; // 当前状态在数组中的下标
+        const eraserBtn = document.getElementById("eraserBtn"); //橡皮按钮形式切换
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false; // 是否在绘画中
+        let lastX = 0; // 上一个坐标点的x坐标
+        let lastY = 0; // 上一个坐标点的y坐标
+        let canvasHistory = []; // 保存历史画布状态的数组
+        let currentIndex = -1; // 当前状态在数组中的下标
 
-    // 添加事件处理函数
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mouseup', stopDraw);
-    canvas.addEventListener('mousemove', draw);
-    document.getElementById('clearBtn').addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
-    document.getElementById('eraserBtn').addEventListener('click', toggleEraser);
-    document.getElementById('colorSelect').addEventListener('change', () => ctx.strokeStyle = getColor());
-    document.getElementById('sizeRange').addEventListener('input', updateSize);
-    document.getElementById('imageInput').addEventListener('change', handleImageUpload);
-    document.getElementById('saveBtn').addEventListener('click', saveCanvasImage);
-    document.getElementById('undoBtn').addEventListener('click', undo);
+        // 添加事件处理函数
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mousemove', draw);
+        document.getElementById('clearBtn').addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
+        document.getElementById('eraserBtn').addEventListener('click', toggleEraser);
+        document.getElementById('colorSelect').addEventListener('change', () => ctx.strokeStyle = getColor());
+        document.getElementById('sizeRange').addEventListener('input', updateSize);
+        document.getElementById('imageInput').addEventListener('change', handleImageUpload);
+        document.getElementById('saveBtn').addEventListener('click', saveCanvasImage);
+        document.getElementById('undoBtn').addEventListener('click', undo);
 
-    //橡皮按键两种形式
-    function setButtonText(isEraser) {
-    eraserBtn.innerText = isEraser ? "换橡皮" : "换画笔";
-  }
-    // 示例：初始状态为橡皮
-    let isEraser = true;
-    setButtonText(isEraser);
-     // 示例：切换状态的按钮点击事件
-    eraserBtn.addEventListener("click", function () {
-    isEraser = !isEraser;
-    setButtonText(isEraser);
-    });
-
-    function startDraw(e) {
-        // 鼠标按下时开始绘画
-        drawing = true;
-        [lastX, lastY] = [e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop + window.scrollY];
-
-        // 开始新的路径时保存当前画布状态到历史记录
-
-    }
-
-    function stopDraw() {
-        // 鼠标松开时停止绘画，重置当前路径
-        drawing = false;
-        ctx.beginPath();
-        saveCanvasState();
-    }
-
-    function draw(e) {
-        if (!drawing) return;
-
-        const [x, y] = [e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop + window.scrollY];
-
-        // 计算控制点坐标
-        const controlX = (lastX + x) / 2;
-        const controlY = (lastY + y) / 2;
-
-        // 使用二次贝塞尔曲线绘制平滑曲线
-        ctx.quadraticCurveTo(lastX, lastY, controlX, controlY);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(controlX, controlY);
-
-        lastX = x;
-        lastY = y;
-    }
-
-    function toggleEraser() {
-        // 切换橡皮擦和画笔
-        document.getElementById('eraserBtn').classList.toggle('active');
-        ctx.strokeStyle = getColor();
-    }
-
-    function getColor() {
-        // 获取颜色选取器的值，如果橡皮擦被激活则返回白色
-        return document.getElementById('eraserBtn').classList.contains('active') ? 'white' : document.getElementById('colorSelect').value;
-    }
-
-    function updateSize() {
-        // 更新笔刷大小
-        ctx.lineWidth = document.getElementById('sizeRange').value;
-        ctx.lineCap = "round"; // 解决黑线断断续续有间隙的问题
-        document.getElementById('sizeValue').textContent = document.getElementById('sizeRange').value;
-    }
-
-    function handleImageUpload() {
-        let image = new Image();
-        var file = document.getElementById('imageInput').files[0];
-
-        if (file) {
-            const reader = new FileReader();
-            const formData = new FormData();
-            formData.append('imageFile', file);
-
-            reader.onload = function(e) {
-                alert(file);
-                image.onload = function() {
-                    canvas.width = image.width;
-                    canvas.height = image.height;
-                    ctx.drawImage(image, 0, 0, image.width, image.height);
-                    saveCanvasState();};
-                image.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-            
-            const xhr = new XMLHttpRequest();
-                    xhr.open('POST', '/api/endpoint');
-                    xhr.onload = function() {
-                        if (xhr.status === 200) {
-                            console.log('路由被调用');
-                            const response = JSON.parse(xhr.responseText);
-
-                            // 处理返回值
-                            const processedImageBase64 = response.processedImage;
-                            //displayProcessedImage(processedImageBase64); // 显示处理后的图像
-                            var imgsrc = 'data:image/png;base64,' + processedImageBase64;
-                            image.src = imgsrc;
-                            canvas.width = image.width;
-                            canvas.height = image.height;
-                            ctx.drawImage(image, 0, 0, image.width, image.height);
-                            saveCanvasState();
-                        } else {
-                            console.log('路由未被调用');
-                        }
-                    };
-                    xhr.send(formData);
+        //橡皮按键两种形式
+        function setButtonText(isEraser) {
+            eraserBtn.innerText = isEraser ? "换橡皮" : "换画笔";
         }
-    }
+        // 示例：初始状态为橡皮
+        let isEraser = true;
+        setButtonText(isEraser);
+        // 示例：切换状态的按钮点击事件
+        eraserBtn.addEventListener("click", function () {
+            isEraser = !isEraser;
+            setButtonText(isEraser);
+        });
 
-    //function displayProcessedImage(processedImageBase64) {
-       // const originalImage = document.getElementById('imageElement');
+        function startDraw(e) {
+            // 鼠标按下时开始绘画
+            drawing = true;
+            [lastX, lastY] = [e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop + window.scrollY];
+
+            // 开始新的路径时保存当前画布状态到历史记录
+
+        }
+
+        function stopDraw() {
+            // 鼠标松开时停止绘画，重置当前路径
+            drawing = false;
+            ctx.beginPath();
+            saveCanvasState();
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+
+            const [x, y] = [e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop + window.scrollY];
+
+            // 计算控制点坐标
+            const controlX = (lastX + x) / 2;
+            const controlY = (lastY + y) / 2;
+
+            // 使用二次贝塞尔曲线绘制平滑曲线
+            ctx.quadraticCurveTo(lastX, lastY, controlX, controlY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(controlX, controlY);
+
+            lastX = x;
+            lastY = y;
+        }
+
+        function toggleEraser() {
+            // 切换橡皮擦和画笔
+            document.getElementById('eraserBtn').classList.toggle('active');
+            ctx.strokeStyle = getColor();
+        }
+
+        function getColor() {
+            // 获取颜色选取器的值，如果橡皮擦被激活则返回白色
+            return document.getElementById('eraserBtn').classList.contains('active') ? 'white' : document.getElementById('colorSelect').value;
+        }
+
+        function updateSize() {
+            // 更新笔刷大小
+            ctx.lineWidth = document.getElementById('sizeRange').value;
+            ctx.lineCap = "round"; // 解决黑线断断续续有间隙的问题
+            document.getElementById('sizeValue').textContent = document.getElementById('sizeRange').value;
+        }
+
+        function handleImageUpload() {
+            let image = new Image();
+            var file = document.getElementById('imageInput').files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                const formData = new FormData();
+                formData.append('imageFile', file);
+
+                reader.onload = function (e) {
+                    alert(file);
+                    image.onload = function () {
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        ctx.drawImage(image, 0, 0, image.width, image.height);
+                        saveCanvasState();
+                    };
+                    image.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/endpoint');
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        console.log('路由被调用');
+                        const response = JSON.parse(xhr.responseText);
+
+                        // 处理返回值
+                        const processedImageBase64 = response.processedImage;
+                        //displayProcessedImage(processedImageBase64); // 显示处理后的图像
+                        var imgsrc = 'data:image/png;base64,' + processedImageBase64;
+                        image.src = imgsrc;
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        ctx.drawImage(image, 0, 0, image.width, image.height);
+                        saveCanvasState();
+                    } else {
+                        console.log('路由未被调用');
+                    }
+                };
+                xhr.send(formData);
+            }
+        }
+
+        //function displayProcessedImage(processedImageBase64) {
+        // const originalImage = document.getElementById('imageElement');
 
         // 创建一个新的Image元素来显示处理后的图像
-       // const processedImage = new Image();
+        // const processedImage = new Image();
         //processedImage.onload = function() {
-            //originalImage.src = this.src; // 替换原图像
-//};
+        //originalImage.src = this.src; // 替换原图像
+        //};
         //processedImage.src = 'data:image/png;base64,' + processedImageBase64;
-        
-   // }
+
+        // }
 
 
 
-        
-    function saveCanvasState() {
 
-        // 保存当前画布状态到历史记录中
-        canvasHistory = canvasHistory.slice(0, currentIndex + 1);
+        function saveCanvasState() {
 
-        const canvasData = canvas.toDataURL();
-        canvasHistory.push(canvasData);
+            // 保存当前画布状态到历史记录中
+            canvasHistory = canvasHistory.slice(0, currentIndex + 1);
 
-        currentIndex++;
-        //保存后打开程序
+            const canvasData = canvas.toDataURL();
+            canvasHistory.push(canvasData);
 
-    }
+            currentIndex++;
+            //保存后打开程序
 
-    function undo() {
-        // 撤销上一步操作
-        if (currentIndex > 0) {
-            currentIndex--;
-
-            const img = new Image();
-            img.onload = function() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-            };
-            img.src = canvasHistory[currentIndex];
         }
-    }
 
-    function saveCanvasImage() {
-        // 将画布保存为图片文件并下载
-        const link = document.createElement('a');
-        link.download = 'canvas.png';
-        link.href = canvas.toDataURL();
-        link.click();
-    }
-</script>
+        function undo() {
+            // 撤销上一步操作
+            if (currentIndex > 0) {
+                currentIndex--;
+
+                const img = new Image();
+                img.onload = function () {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = canvasHistory[currentIndex];
+            }
+        }
+
+        function saveCanvasImage() {
+            // 将画布保存为图片文件并下载
+            const link = document.createElement('a');
+            link.download = 'canvas.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
 </body>
+
 </html>

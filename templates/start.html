@@ -1,14 +1,88 @@
-<html>  
-    <body>  
-        <h1>ip<h1>
-        <button onclick="reToUrl('{{ url }}')">启动</button>
-      </body>
-  <title>Sketcher线稿提取</title>  
-  <script type="text/javascript">   
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sketcher线稿提取</title>
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            text-transform: uppercase;
+            font-weight: 500;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            outline: none;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Sketcher线稿提取</h1>
+        <button class="pulse" onclick="reToUrl('{{ url }}')">启动</button>
+    </div>
+    <script type="text/javascript">
         function reToUrl(url) {
             window.location.href = url;
         }
-  </script>  
- 
+    </script>
+</body>
 
 </html>

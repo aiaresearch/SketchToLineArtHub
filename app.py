@@ -2,13 +2,21 @@
 from flask import Flask, render_template, request, jsonify
 import processer
 import json
+
 import os
-import socket
-with open('parameter/parameter.txt', 'r') as file:
+import sys
+
+
+
+
+# dir_pathself = os.path.split(os.path.realpath(__file__))[0]
+# print(dir_pathself)
+dir_pathself = os.path.dirname(sys.argv[0])
+print(dir_pathself)
+
+with open(os.path.join(dir_pathself,'parameter/parameter.txt'), 'r',encoding="gbk") as file:
     content = file.read()
 
-dir_pathself = os.path.split(os.path.realpath(__file__))[0]
-print(dir_pathself)
 p_dic = {'blur_num': 5,  # 中值滤波核边长大小
          # gaussian二值化参数
          'gaussian_wide': 3,  # 阈值计算邻域
@@ -32,29 +40,29 @@ p_dic.update(json.loads(content))
 Pcer = processer.Processer(p_dic)
 Pcer.set_config(p_dic)
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder=os.path.join(dir_pathself,'templates'))
 
 
-def get_local_ip():
-    # 创建一个套接字
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# def get_local_ip():
+#     # 创建一个套接字
+#     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    try:
-        # 连接到一个外部的IP地址和端口
-        s.connect(("8.8.8.8", 80))
+#     try:
+#         # 连接到一个外部的IP地址和端口
+#         s.connect(("8.8.8.8", 80))
 
-        # 获取本地IP地址
-        local_ip = s.getsockname()[0]
-    except socket.error as e:
-        print("获取本地IP地址失败:", e)
-        local_ip = "无法获取本地IP地址"
-    finally:
-        s.close()
+#         # 获取本地IP地址
+#         local_ip = s.getsockname()[0]
+#     except socket.error as e:
+#         print("获取本地IP地址失败:", e)
+#         local_ip = "无法获取本地IP地址"
+#     finally:
+#         s.close()
 
-    return local_ip
+#     return local_ip
 
 
-ip = get_local_ip()
+ip = "127.0.0.1"
 
 url = 'http://127.0.0.1:5000/start'
 command = f'start {url}'
@@ -83,7 +91,7 @@ def index2():
         "canny-wide": 1,
         "color": [0, 0, 0]
     }
-    return render_template('main.html',
+    return render_template('setting.html',
                            url='http://'+ip+':5000/',
                            parameter_dict=parameter_dict)
 
